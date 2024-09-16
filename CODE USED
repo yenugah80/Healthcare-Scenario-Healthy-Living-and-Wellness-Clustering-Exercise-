@@ -1,0 +1,204 @@
+code used
+
+{python}
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+file_path = 'C:/Users/harik/OneDrive/Documents/NWU DOCS/ML/PROBLEMSETS/LAB/LABS/simulated_health_wellness_data.csv'
+wellness_data = pd.read_csv(file_path)
+
+# Display basic information
+print("Column names in the dataset:")
+print(wellness_data.columns)
+print("First few rows of the dataset:")
+print(wellness_data.head())
+
+# Summary statistics
+print("Summary statistics:")
+print(wellness_data.describe())
+
+# Check for missing values
+print("Missing values in each column:")
+print(wellness_data.isna().sum())
+
+K-MEANS CLUSTERING
+{python}
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+
+# Scale the numeric features
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(wellness_data.select_dtypes(include=[np.number]))
+
+# Apply K-Means Clustering
+kmeans = KMeans(n_clusters=3, random_state=123)
+kmeans_result = kmeans.fit_predict(scaled_data)
+wellness_data['kmeans_cluster'] = kmeans_result
+
+# Evaluate K-Means Clustering
+silhouette_kmeans = silhouette_score(scaled_data, kmeans_result)
+print(f'Silhouette Score for K-Means: {silhouette_kmeans:.2f}')
+
+# Visualize K-Means Clustering
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=wellness_data, x='Exercise_Time_Min', y='BMI', hue='kmeans_cluster', palette='viridis')
+plt.title("K-Means Clustering Results")
+plt.xlabel("Exercise Time (mins)")
+plt.ylabel("BMI")
+plt.savefig("kmeans_clustering.png")
+plt.show()
+
+hierarchical_clustering
+
+{python}
+import scipy.cluster.hierarchy as sch
+
+# Apply Hierarchical Clustering
+distance_matrix = sch.distance.pdist(scaled_data)
+hierarchical_result = sch.linkage(distance_matrix, method='complete')
+
+# Dendrogram
+plt.figure(figsize=(10, 7))
+sch.dendrogram(hierarchical_result)
+plt.title("Hierarchical Clustering Dendrogram")
+plt.xlabel("Sample index")
+plt.ylabel("Distance")
+plt.savefig("hierarchical_dendrogram.png")
+plt.show()
+
+# Form clusters
+clusters = sch.fcluster(hierarchical_result, t=3, criterion='maxclust')
+wellness_data['hclust_cluster'] = clusters
+
+# Evaluate Hierarchical Clustering
+silhouette_hclust = silhouette_score(scaled_data, clusters)
+print(f'Silhouette Score for Hierarchical Clustering: {silhouette_hclust:.2f}')
+
+# Visualize Hierarchical Clustering
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=wellness_data, x='Exercise_Time_Min', y='BMI', hue='hclust_cluster', palette='viridis')
+plt.title("Hierarchical Clustering Results")
+plt.xlabel("Exercise Time (mins)")
+plt.ylabel("BMI")
+plt.savefig("hierarchical_clustering.png")
+plt.show()
+
+
+{python}
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.metrics import silhouette_score
+import scipy.cluster.hierarchy as sch
+
+# Define file path
+file_path = 'C:/Users/harik/OneDrive/Documents/NWU DOCS/ML/PROBLEMSETS/LAB/LABS/simulated_health_wellness_data.csv'
+
+# Load dataset
+wellness_data = pd.read_csv(file_path)
+
+# Display basic information
+print("Column names in the dataset:")
+print(wellness_data.columns)
+print("First few rows of the dataset:")
+print(wellness_data.head())
+
+# Summary statistics
+print("Summary statistics:")
+print(wellness_data.describe())
+
+# Check for missing values
+print("Missing values in each column:")
+print(wellness_data.isna().sum())
+
+# Select numeric features
+numeric_features = wellness_data.select_dtypes(include=[np.number])
+
+
+silhouette_score
+{python}
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+import scipy.cluster.hierarchy as sch
+
+# Apply K-Means Clustering on PCA-reduced data
+kmeans_pca = KMeans(n_clusters=3, random_state=123)
+kmeans_pca_result = kmeans_pca.fit_predict(pca_result)
+pca_df['kmeans_pca_cluster'] = kmeans_pca_result
+
+# Evaluate K-Means Clustering after PCA
+silhouette_kmeans_pca = silhouette_score(pca_result, kmeans_pca_result)
+print(f'Silhouette Score for K-Means (with PCA): {silhouette_kmeans_pca:.2f}')
+
+# Apply Hierarchical Clustering on PCA-reduced data
+distance_matrix_pca = sch.distance.pdist(pca_result)
+hierarchical_result_pca = sch.linkage(distance_matrix_pca, method='complete')
+clusters_pca = sch.fcluster(hierarchical_result_pca, t=3, criterion='maxclust')
+pca_df['hclust_pca_cluster'] = clusters_pca
+
+# Evaluate Hierarchical Clustering after PCA
+silhouette_hclust_pca = silhouette_score(pca_result, clusters_pca)
+print(f'Silhouette Score for Hierarchical Clustering (with PCA): {silhouette_hclust_pca:.2f}')
+
+pca_hclust_clusters
+{python}
+# Visualize K-Means Clustering Results in PCA space
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=pca_df, x='PC1', y='PC2', hue='kmeans_pca_cluster', palette='viridis', legend='full')
+plt.title("PCA: K-Means Clusters in Principal Component Space (After PCA)")
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.savefig("pca_kmeans_clusters.png")
+plt.show()
+
+# Visualize Hierarchical Clustering Results in PCA space
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=pca_df, x='PC1', y='PC2', hue='hclust_pca_cluster', palette='viridis', legend='full')
+plt.title("PCA: Hierarchical Clustering in Principal Component Space (After PCA)")
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.savefig("pca_hclust_clusters.png")
+plt.show()
+
+{python}
+# Variance explained by each component
+explained_variance = pca.explained_variance_ratio_
+print(f"Explained Variance by PCA Components: {explained_variance}")
+
+# PCA components (loadings)
+components = pca.components_
+components_df = pd.DataFrame(components, columns=numeric_features.columns, index=['PC1', 'PC2'])
+print(f"PCA Components (Loadings):\n{components_df}")
+
+{python}
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# K-Means Clustering Visualization
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=pca_df, x='PC1', y='PC2', hue='kmeans_pca_cluster', palette='viridis', legend='full')
+plt.title("PCA: K-Means Clusters in Principal Component Space (After PCA)")
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.savefig("pca_kmeans_clusters.png")
+plt.show()
+
+{python}
+# Hierarchical Clustering Visualization
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=pca_df, x='PC1', y='PC2', hue='hclust_pca_cluster', palette='viridis', legend='full')
+plt.title("PCA: Hierarchical Clustering in Principal Component Space (After PCA)")
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.savefig("pca_hclust_clusters.png")
+plt.show()
